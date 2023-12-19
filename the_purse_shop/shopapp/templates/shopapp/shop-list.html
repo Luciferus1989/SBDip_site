@@ -1,0 +1,25 @@
+{% extends 'shopapp/home.html' %}
+{% block title %}
+    Items List
+{% endblock %}
+{% block body %}
+    <h1>Items:</h1>
+    {% if products %}
+        <p>___________________________________________________________</p>
+        <div>
+            {% for item in items %}
+            <div>
+                <p>Item : <a href="{% url 'shopapp:item-details' pk=item.pk %}"
+                >{{ item.name }}</a></p>
+                    <p>Price : {{ item.price }}</p>
+                    {% if product.preview %}
+                    <img src="{{ item.preview.url }}" alt="{{ item.preview.name }}">
+                    {% endif %}
+                <p>___________________________________________________________</p>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <h3>No products yet</h3>
+    {% endif %}
+{% endblock %}

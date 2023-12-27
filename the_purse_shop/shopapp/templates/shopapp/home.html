@@ -1,16 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>
-      {% block title %}
-      Base Title
-      {% endblock %}
-    </title>
-</head>
-<body>
-      {% block body %}
-      Base body
-      {% endblock %}
-</body>
-</html>
+{% extends 'shopapp/base.html' %}
+{% block title %}
+  The Purse Shop
+{% endblock %}
+{% block content %}
+    <section>
+      <a href="{% url 'shopapp:shop_list' %}">Shopeee</a>
+    </section>
+{% endblock %}

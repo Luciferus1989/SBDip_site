@@ -1,8 +1,9 @@
-from .models import Item, Order, FeedBack
-from django.shortcuts import render
+from .models import Item, Order, FeedBack, ItemImage
+from django.shortcuts import render, reverse
 from django.urls import reverse_lazy
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
-from django.views.generic import ListView, DetailView, CreateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
+from .forms import ItemForm
 
 
 def home(request: HttpRequest):
@@ -17,11 +18,8 @@ class ShopListView(ListView):
 
 class ItemDetailsView(DetailView):
     template_name = 'shopapp/item-details.html'
-    # queryset = (
-    #     Item.objects.prefetch_related('images'),
-    #     FeedBack.objects.prefetch_related('item'),
-    # )
     context_object_name = 'item'
+    queryset = Item.objects.prefetch_related('images')
 
     def get_queryset(self):
         return Item.objects.prefetch_related('images', 'feedbacks')
@@ -32,11 +30,37 @@ class ItemDetailsView(DetailView):
         return context
 
 
+class ProductUpdateView(UpdateView):
+    model = Item
+    template_name_suffix = '_update_form'
+    form_class = ItemForm
+
+    def get_success_url(self):
+        return reverse('shopapp:product_detail', kwargs={'pk': self.object.pk})
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        for image in form.files.getlist('images'):
+            ItemImage.objects.create(
+                product=self.object,
+                image=image
+            )
+        return response
+
 
 class ItemCreate(CreateView):
     model = Item
-    fields = 'item_number', 'name', 'description', 'price', 'preview'
+    form_class = ItemForm
     success_url = reverse_lazy('shopapp:shop-list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        for image in form.files.getlist('images'):
+            ItemImage.objects.create(
+                product=self.object,
+                image=image
+            )
+        return response
 
 
 class ItemDelete(DeleteView):

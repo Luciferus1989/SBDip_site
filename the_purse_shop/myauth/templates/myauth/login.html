@@ -1,0 +1,24 @@
+{% extends 'myauth/base.html' %}
+{% block title %}
+    Login
+{% endblock %}
+
+{% block body %}
+  <div class="d-flex align-items-center justify-content-center" style="min-height: 100vh; background-color: #f2f2f2;">
+    <form method="post" action="{% url 'myauth:login' %}" class="reg-form p-4" style="border: 1px solid #ddd; background-color: #fff;">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="username" class="form-label">Specify email or username :</label>
+      <input type="text" id="username_or_email" name="username_or_email" class="reg-form__input form-control" required>
+    </div>
+    <div class="mb-3">
+      <br>
+      <label for="password" class="form-label">Password:</label>
+      <input type="password" name="password" class="reg-form__input form-control" required>
+      <br>
+    </div>
+    <button type="submit" class="btn btn-outline-primary">Submit</button>
+    <a href="{% url 'myauth:register' %}" type="button" class="btn btn-link">Register</a>
+    </form>
+  </div>
+{% endblock %}

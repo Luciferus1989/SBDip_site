@@ -1,25 +1,26 @@
-{% extends 'shopapp/home.html' %}
+{% extends 'shopapp/base.html' %}
+
 {% block title %}
-    Items List
+    The Purse Shop/Items List
 {% endblock %}
-{% block body %}
-    <h1>Items:</h1>
-    {% if products %}
-        <p>___________________________________________________________</p>
-        <div>
-            {% for item in items %}
-            <div>
-                <p>Item : <a href="{% url 'shopapp:item-details' pk=item.pk %}"
-                >{{ item.name }}</a></p>
-                    <p>Price : {{ item.price }}</p>
-                    {% if product.preview %}
-                    <img src="{{ item.preview.url }}" alt="{{ item.preview.name }}">
-                    {% endif %}
-                <p>___________________________________________________________</p>
-            </div>
-            {% endfor %}
+{% block content %}
+    <div class="item-container">
+        {% if items %}
+        {% for item in items %}
+        <div class="item">
+            <p>Item : <a href="{% url 'shopapp:item_details' pk=item.pk %}"
+            >{{ item.name }}</a></p>
+            <p>Price : ${{ item.price }}</p>
+            {% if item.discount %}
+                <p>Discount : {{ item.discount }}</p>
+            {% endif %}
+            {% if item.preview %}
+                <img src="{{ item.preview.url }}" alt="{{ item.name }}" width="200px" height="200px">
+            {% endif %}
         </div>
+    {% endfor %}
     {% else %}
         <h3>No products yet</h3>
     {% endif %}
+    </div>
 {% endblock %}

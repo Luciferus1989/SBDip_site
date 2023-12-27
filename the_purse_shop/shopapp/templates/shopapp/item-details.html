@@ -1,10 +1,40 @@
 {% extends 'shopapp/base.html' %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Shop List</title>
-</head>
-<body>
 
-</body>
-</html>
+{% block title %}
+    The Purse Shop/Items List/Item #{{item.pk}}
+{% endblock %}
+
+{% block content %}
+    <div class="item">
+        <h1>
+            <strong>{{item.name}}</strong>
+        </h1>
+        <div><em>{{item.description}}</em></div>
+        <div>Price: $ {{item.price}}</div>
+        <div style="margin-bottom: 10px;">
+            {% if item.discount %}
+                <div>
+                    Discount: {{item.discount}} %
+                </div>
+            {% endif %}
+        </div>
+        {% if item.preview %}
+        <img src="{{ item.preview.url }}" alt="{{ item.preview.name }}" width="200px" height="200px">
+        {% endif %}
+        <h3>Images</h3>
+        <div>
+            {% for img in item.images.all %}
+            <div>
+                <img src="{{ img.image.url }}" alt="{{ img.image.name }}" width="200px" height="200px">
+                <div>{{ img.description }}</div>
+            </div>
+            {% empty %}
+            <div>No images uploaded yet</div>
+            {% endfor %}
+        </div>
+    </div>
+    <div>
+        <a href="{% url 'shopapp:shop_list' %}">Back to LIST</a>
+    </div>
+
+{% endblock %}

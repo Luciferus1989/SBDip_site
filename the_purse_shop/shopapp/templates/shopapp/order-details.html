@@ -1,10 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<body>
+{% extends 'shopapp/base.html' %}
 
-</body>
-</html>
+{% block title %}
+    Order Details
+{% endblock %}
+
+{% block content %}
+    <h1>Order Details:</h1>
+    <div>
+        <p>Order by: {{ order.customer_name.first_name }} {{ order.customer_name.last_name }}</p>
+        <p>Promocode: <code>{{ order.promocode }}</code></p>
+        <p>Delivery address: {{ order.delivery_address }}</p>
+    </div>
+
+    <h2>Order Items:</h2>
+    {% for item in order_items %}
+        <div>
+            <p>{{ item.item.name }} - Quantity: {{ item.quantity }}</p>
+        </div>
+    {% endfor %}
+
+    <p>Total Quantity: {{ total_quantity }}</p>
+    <p>Total Amount: ${{ total_amount }}</p>
+{% endblock %}

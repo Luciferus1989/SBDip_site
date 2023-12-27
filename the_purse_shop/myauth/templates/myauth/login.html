@@ -8,6 +8,13 @@
     <form method="post" action="{% url 'myauth:login' %}" class="reg-form p-4" style="border: 1px solid #ddd; background-color: #fff;">
     {% csrf_token %}
     <div class="mb-3">
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
       <label for="username" class="form-label">Specify email or username :</label>
       <input type="text" id="username_or_email" name="username_or_email" class="reg-form__input form-control" required>
     </div>

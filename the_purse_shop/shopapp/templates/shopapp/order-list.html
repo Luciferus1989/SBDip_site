@@ -1,10 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'shopapp/base.html' %}
 
-</body>
-</html>
+{% block title %}
+    Orders List
+{% endblock %}
+
+{% block content %}
+    <h3>Orders:</h3>
+    {% if orders %}
+        <div>
+            {% for order in orders %}
+            <div>
+                <p>Details : <a href="{% url 'shopapp:order_details' pk=order.pk %}"
+                >{{ order.pk }}</a></p>
+                <p>Order by {% firstof order.customer_name.first_name order.customer_name.username %}</p>
+                <p>Promocode: <code>{{order.promocode}}</code></p>
+                <p>Delivery address: {{order.delivery_address}}</p>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <h3>No orders yet</h3>
+    {% endif %}
+{% endblock %}

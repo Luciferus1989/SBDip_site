@@ -1,6 +1,6 @@
 from django import forms
 from django.core import validators
-from .models import Item
+from .models import Item, Order, OrderItem
 from django.contrib.auth.models import Group
 
 
@@ -28,3 +28,20 @@ class ItemForm(forms.ModelForm):
         fields = 'item_number', 'name', 'price', 'discount', 'archived', 'preview'
 
     images = MultipleFileField()
+
+
+class OrderCreateForm(forms.ModelForm):
+    items = forms.ModelMultipleChoiceField(
+        queryset=OrderItem.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    class Meta:
+        model = Order
+        fields = ['delivery_address', 'promocode', 'items']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(OrderCreateForm, self).__init__(*args, **kwargs)
+        if user:
+            self.fields['items'].queryset = OrderItem.objects.filter(order__customer_name=user)

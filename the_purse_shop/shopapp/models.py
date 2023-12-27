@@ -3,11 +3,10 @@ from django.db import models
 
 
 def product_preview_directory_path(instance: "Item", filename: str) -> str:
-    return "products/product_{pk}/preview/{filename}".format(
+    return "media/products/product_{pk}/preview/{filename}".format(
         pk=instance.pk,
         filename=filename,
     )
-
 
 class Item(models.Model):
     class Meta:
@@ -45,12 +44,24 @@ class ItemImage(models.Model):
 
 
 class Order(models.Model):
+    status_choice = [
+        ('active', 'Active'),
+        ('process', 'In Process'),
+        ('archived', 'Archived'),
+    ]
     customer_name = models.ForeignKey(User, on_delete=models.PROTECT)
     promocode = models.CharField(max_length=20, null=False, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     delivery_address = models.TextField(null=True, blank=True)
-    items = models.ManyToManyField(Item, related_name='orders')
+    items = models.ManyToManyField(Item, through='OrderItem')
+    status = models.CharField(max_length=10, choices=status_choice, default='active')
     # receipt = models.FileField(null=True, upload_to='orders/receipts')
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=0)
 
 
 class FeedBack(models.Model):

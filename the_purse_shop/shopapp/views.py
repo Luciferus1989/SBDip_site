@@ -1,9 +1,11 @@
-from .models import Item, Order, FeedBack, ItemImage
-from django.shortcuts import render, reverse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import UserPassesTestMixin
+from .models import Item, Order, FeedBack, ItemImage, OrderItem
+from django.shortcuts import render, reverse, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
-from .forms import ItemForm
+from .forms import ItemForm, OrderCreateForm
 
 
 def home(request: HttpRequest):
@@ -77,12 +79,56 @@ class ItemDelete(DeleteView):
 class OrderListView(ListView):
     template_name = 'shopapp/order-list.html'
     context_object_name = 'orders'
-    queryset = Order.objects.all
+
+    def get_queryset(self):
+        return Order.objects.filter(customer_name=self.request.user)
 
 
-class OrderDetailsView(DetailView):
+class OrderDetailsView(DetailView, UserPassesTestMixin):
     template_name = 'shopapp/order-details.html'
-    queryset = (
-        Order.objects.select_related('user').prefetch_related('products')
-    )
-    context_object_name = 'orders'
+    model = Order
+    context_object_name = 'order'
+
+    def test_func(self):
+        order = self.get_object()
+        return self.request.user == order.user or order.is_public
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order_items = self.object.orderitem_set.all()
+        total_quantity = sum(item.quantity for item in order_items)
+        total_amount = sum(item.item.price * item.quantity for item in order_items)
+
+        context['order_items'] = order_items
+        context['total_quantity'] = total_quantity
+        context['total_amount'] = total_amount
+
+        return context
+
+
+def add_to_cart(request, item_id):
+    item = get_object_or_404(Item, pk=item_id)
+    order, created = Order.objects.get_or_create(customer_name=request.user, status='active')
+    order_item, created = OrderItem.objects.get_or_create(order=order, item=item)
+
+    if not created:
+        order_item.quantity += 1
+        order_item.save()
+    else:
+        order_item.quantity = 1
+        order_item.save()
+
+    return redirect('shopapp:item_details', pk=item_id)
+
+
+@login_required
+class OrderCreateView(CreateView):
+    template_name = 'shopapp/order_create.html'
+    form_class = OrderCreateForm
+
+    def form_valid(self, form):
+        form.instance.customer_name = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('shopapp:order_details', kwargs={'pk': self.object.pk})
